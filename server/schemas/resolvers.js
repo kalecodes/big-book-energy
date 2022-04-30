@@ -7,8 +7,7 @@ const resolvers = {
         // pass parent as placeholder
         // get a user by id or username
         user: async (parent, { user = null, params}) => {
-            return User.findOne({$or: [{ _id: user ? user.id : params.id }, { username: params.username }]})
-            // populate
+            return User.findOne({$or: [{ _id: user ? user.id : params.id }, { username: params.username }]}).populate(savedBooks);
         }
     },
     Mutation: {
@@ -38,15 +37,14 @@ const resolvers = {
             return { token, user };
         },
         // save a book to a users 'savedBooks' field by adding it to the set
-        saveBook: async (parent, { bookId }, context) => {
+        saveBook: async (parent, { bookInput }, context) => {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     // using addToSet instead of push to prevent duplicates
-                    { $addToSet: { savedBooks: bookId } },
+                    { $addToSet: { savedBooks: bookInput } },
                     { new: true, runValidators: true}
-                )
-                //.populate(savedBooks);
+                ).populate(savedBooks);
                 return updatedUser;
             }
 
@@ -59,7 +57,7 @@ const resolvers = {
                     { _id: context.user._id },
                     { $pull: { savedBooks: { bookId }}},
                     { new: true }
-                )
+                ).populate(savedBooks);
                 
                 if (!updatedUser) {
                     return res.status(404).json({ message: "Couldn't find user with this id!"})
