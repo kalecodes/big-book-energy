@@ -9,7 +9,7 @@ const resolvers = {
         me: async (parent, args, context) => {
             if (context.user) {
                 const userData = await User.findOne({ _id: context.user._id })
-
+                .select('-__v -password')
                 return userData;
             }
             
@@ -45,13 +45,13 @@ const resolvers = {
             return { token, user };
         },
         // save a book to a users 'savedBooks' field by adding it to the set
-        saveBook: async (parent, { bookInput }, context) => {
+        saveBook: async (parent, { book }, context) => {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     // using addToSet instead of push to prevent duplicates
-                    { $addToSet: { savedBooks: bookInput } },
-                    { new: true, runValidators: true}
+                    { $addToSet: { savedBooks: book } },
+                    { new: true }
                 );
 
                 return updatedUser;
@@ -64,14 +64,12 @@ const resolvers = {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
-                    { $pull: { savedBooks: { bookId }}},
+                    { $pull: { savedBooks: { bookId: bookId } } },
                     { new: true }
                 );
 
                 return updatedUser;
             }
-
-            throw new AuthenticationError('You must be logged in to perform this action!')
         }
     }
 };
