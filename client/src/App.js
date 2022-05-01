@@ -9,7 +9,7 @@ import { setContext } from '@apollo/client/link/context';
 
 // establish new link to the GraphQL server
 const httpLink = createHttpLink({
-  uri: '/graphql'
+  uri: '/graphql',
 });
 
 // retrieve token from localStorage and set the HTTP Request headers of every request to include the token
