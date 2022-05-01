@@ -1,6 +1,5 @@
 import React from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
-
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import { useQuery, useMutation } from '@apollo/client';
@@ -31,21 +30,8 @@ const SavedBooks = () => {
 
     try {
       await removeBook({
-        variables: { bookId },
-        // manually remove from cache
-        // update: cache => {
-        //   const data = cache.readQuery({ query: GET_ME });
-        //   const userDataCache = data.me;
-        //   const savedBooksCache = userDataCache.saveBooks;
-        //   const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId);
-        //   data.me.savedBooks = updatedBookCache;
-        //   cache.writeQuery({ query: GET_ME , data: {data: {...data.me.savedBooks} } })
-        // }
+        variables: { bookId }
       });
-
-      // if (!response.ok) {
-      //   throw new Error('something went wrong!');
-      // }
 
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
