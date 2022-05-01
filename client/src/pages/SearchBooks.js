@@ -6,6 +6,7 @@ import { searchGoogleBooks } from '../utils/API';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import { SAVE_BOOK } from '../utils/mutations';
 import { useMutation } from '@apollo/client';
+import { GET_ME } from '../utils/queries';
 
 
 const SearchBooks = () => {
@@ -22,7 +23,6 @@ const SearchBooks = () => {
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
   });
-
 
   // destructure saveBook mutation from SAVE_BOOK so we can use it in function
   const [saveBook] = useMutation(SAVE_BOOK);
@@ -73,7 +73,12 @@ const SearchBooks = () => {
 
     try {
       const response = await saveBook({
-        variables: { book: bookToSave }
+        variables: { book: bookToSave },
+        // manually update cache
+        update: cache => {
+          const { me } = cache.readQuery({ query: GET_ME });
+          cache.writeQuery({ query: GET_ME , data: {me: { ...me, savedBooks: [...me.saveBooks, bookToSave] } } })
+        }
       });
 
       if (!response) {
