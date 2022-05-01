@@ -4,14 +4,14 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server.js --ignore client",
     "watch": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "apollo-server-express": "^2.15.0",
+    "apollo-server-express": "^3.6.7",
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "graphql": "^15.5.0",
