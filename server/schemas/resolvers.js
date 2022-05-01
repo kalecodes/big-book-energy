@@ -6,9 +6,15 @@ const resolvers = {
     Query: {
         // pass parent as placeholder
         // get a user by id or username
-        user: async (parent, { user = null, params}) => {
-            return User.findOne({$or: [{ _id: user ? user.id : params.id }, { username: params.username }]}).populate(savedBooks);
-        }
+        me: async (parent, args, context) => {
+            if (context.user) {
+                const userData = await User.findOne({ _id: context.user._id })
+
+                return userData;
+            }
+            
+            throw new AuthenticationError("You must log in to view this page.")
+        }   
     },
     Mutation: {
         addUser: async (parent, args) => {
@@ -22,13 +28,15 @@ const resolvers = {
             return { token, user };
         },
         // login a user, sign a token, and send it back to LoginForm.js
-        login: async (parent, {email, password}) => {
+        login: async (parent, { email, password }) => {
             const user = await User.findOne({ email });
+
             if (!user) {
                 throw new AuthenticationError('Incorrect credentials');
             }
 
             const correctPw = await user.isCorrectPassword(password);
+
             if (!correctPw) {
                 throw new AuthenticationError('Incorrect credentials');
             }
@@ -44,27 +52,26 @@ const resolvers = {
                     // using addToSet instead of push to prevent duplicates
                     { $addToSet: { savedBooks: bookInput } },
                     { new: true, runValidators: true}
-                ).populate(savedBooks);
+                );
+
                 return updatedUser;
             }
 
-            throw new AuthenticationError('You need to be logged in!');
+            throw new AuthenticationError('You must be logged in to perform this action');
         },
         // remove book from savedBooks
-        deleteBook: async (parent, { bookId }, context) => {
+        removeBook: async (parent, { bookId }, context) => {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     { $pull: { savedBooks: { bookId }}},
                     { new: true }
-                ).populate(savedBooks);
-                
-                if (!updatedUser) {
-                    return res.status(404).json({ message: "Couldn't find user with this id!"})
-                }
+                );
 
                 return updatedUser;
             }
+
+            throw new AuthenticationError('You must be logged in to perform this action!')
         }
     }
 };
