@@ -45,12 +45,12 @@ const resolvers = {
             return { token, user };
         },
         // save a book to a users 'savedBooks' field by adding it to the set
-        saveBook: async (parent, { book }, context) => {
+        saveBook: async (parent, { newBook }, context) => {
             if (context.user) {
-                const updatedUser = await User.findOneAndUpdate(
+                const updatedUser = await User.findByIdAndUpdate(
                     { _id: context.user._id },
                     // using addToSet instead of push to prevent duplicates
-                    { $addToSet: { savedBooks: book } },
+                    { $addToSet: { savedBooks: newBook } },
                     { new: true }
                 );
 
@@ -62,14 +62,15 @@ const resolvers = {
         // remove book from savedBooks
         removeBook: async (parent, { bookId }, context) => {
             if (context.user) {
-                const updatedUser = await User.findOneAndUpdate(
+                const updatedUser = await User.findByIdAndUpdate(
                     { _id: context.user._id },
-                    { $pull: { savedBooks: { bookId: bookId } } },
+                    { $pull: { savedBooks: { bookId } } },
                     { new: true }
                 );
 
                 return updatedUser;
             }
+            throw new AuthenticationError('You must be logged in to perform this action')
         }
     }
 };

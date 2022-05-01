@@ -30,22 +30,22 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await removeBook({
-        variables: { bookId: bookId },
+      await removeBook({
+        variables: { bookId },
         // manually remove from cache
-        update: cache => {
-          const data = cache.readQuery({ query: GET_ME });
-          const userDataCache = data.me;
-          const savedBooksCache = userDataCache.saveBooks;
-          const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId);
-          data.me.savedBooks = updatedBookCache;
-          cache.writeQuery({ query: GET_ME , data: {data: {...data.me.savedBooks} } })
-        }
+        // update: cache => {
+        //   const data = cache.readQuery({ query: GET_ME });
+        //   const userDataCache = data.me;
+        //   const savedBooksCache = userDataCache.saveBooks;
+        //   const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId);
+        //   data.me.savedBooks = updatedBookCache;
+        //   cache.writeQuery({ query: GET_ME , data: {data: {...data.me.savedBooks} } })
+        // }
       });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
+      // if (!response.ok) {
+      //   throw new Error('something went wrong!');
+      // }
 
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
