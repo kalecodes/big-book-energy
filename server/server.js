@@ -1,8 +1,6 @@
 const express = require('express');
 const path = require('path');
 const db = require('./config/connection');
-// only applies to REST API
-// const routes = require('./routes');
 
 // Import Apollo Server
 const { ApolloServer } = require('apollo-server-express');
@@ -49,9 +47,6 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 }
-
-// only applies to REST API
-// app.use(routes);
 
 // wildcard GET route to respond with production ready front-end code if a request is made to invalid route
 app.get('*', (req, res) => {
